@@ -6,11 +6,16 @@
 
 **[Project site &rarr;](https://at0m-b0mb.github.io/Nyx-FlipperZero/)**
 
-[![Build FAP](https://github.com/at0m-b0mb/Nyx-FlipperZero/actions/workflows/build.yml/badge.svg)](https://github.com/at0m-b0mb/Nyx-FlipperZero/actions/workflows/build.yml)
-[![Release](https://img.shields.io/github/v/release/at0m-b0mb/Nyx-FlipperZero?color=9f7aff)](https://github.com/at0m-b0mb/Nyx-FlipperZero/releases/latest)
-[![License: MIT](https://img.shields.io/badge/License-MIT-9f7aff.svg)](LICENSE)
-[![Flipper API](https://img.shields.io/badge/Flipper%20API-87%20%C2%B7%2088-ff4a60)](#which-build-do-i-download)
-![Listen only](https://img.shields.io/badge/listen--only-never%20transmits-2ec7a5)
+[![Latest release](https://img.shields.io/github/v/release/at0m-b0mb/Nyx-FlipperZero?style=flat-square&color=9f7aff&labelColor=0b0710)](https://github.com/at0m-b0mb/Nyx-FlipperZero/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/at0m-b0mb/Nyx-FlipperZero/total?style=flat-square&color=9f7aff&labelColor=0b0710&label=downloads)](https://github.com/at0m-b0mb/Nyx-FlipperZero/releases)
+[![Stars](https://img.shields.io/github/stars/at0m-b0mb/Nyx-FlipperZero?style=flat-square&color=9f7aff&labelColor=0b0710)](https://github.com/at0m-b0mb/Nyx-FlipperZero/stargazers)
+[![Build](https://img.shields.io/github/actions/workflow/status/at0m-b0mb/Nyx-FlipperZero/build.yml?branch=main&style=flat-square&color=2ec7a5&labelColor=0b0710&label=build)](https://github.com/at0m-b0mb/Nyx-FlipperZero/actions/workflows/build.yml)
+[![License](https://img.shields.io/badge/license-MIT-9f7aff?style=flat-square&labelColor=0b0710)](LICENSE)
+
+[![Flipper API](https://img.shields.io/badge/Flipper%20API-87%20%C2%B7%2088-ff4a60?style=flat-square&labelColor=0b0710)](#which-build-do-i-download)
+![Platform](https://img.shields.io/badge/platform-Flipper%20Zero-ff4a60?style=flat-square&logo=flipper&logoColor=FE8A2C&labelColor=0b0710)
+![Extra hardware](https://img.shields.io/badge/extra%20hardware-optional%20%241%20probe-9f7aff?style=flat-square&labelColor=0b0710)
+![Listen only](https://img.shields.io/badge/transmits-never-2ec7a5?style=flat-square&labelColor=0b0710)
 
 </div>
 
