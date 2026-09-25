@@ -1,43 +1,86 @@
-<div align="center">
-
-![Nyx banner](images/banner.png)
-
-**See the light they hoped you couldn't.**
-
-**[Project site &rarr;](https://at0m-b0mb.github.io/Nyx-FlipperZero/)**
-
-[![Latest release](https://img.shields.io/github/v/release/at0m-b0mb/Nyx-FlipperZero?style=flat-square&color=9f7aff&labelColor=0b0710)](https://github.com/at0m-b0mb/Nyx-FlipperZero/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/at0m-b0mb/Nyx-FlipperZero/total?style=flat-square&color=9f7aff&labelColor=0b0710&label=downloads)](https://github.com/at0m-b0mb/Nyx-FlipperZero/releases)
-[![Stars](https://img.shields.io/github/stars/at0m-b0mb/Nyx-FlipperZero?style=flat-square&color=9f7aff&labelColor=0b0710)](https://github.com/at0m-b0mb/Nyx-FlipperZero/stargazers)
-[![Build](https://img.shields.io/github/actions/workflow/status/at0m-b0mb/Nyx-FlipperZero/build.yml?branch=main&style=flat-square&color=2ec7a5&labelColor=0b0710&label=build)](https://github.com/at0m-b0mb/Nyx-FlipperZero/actions/workflows/build.yml)
-[![License](https://img.shields.io/badge/license-MIT-9f7aff?style=flat-square&labelColor=0b0710)](LICENSE)
-
-[![Flipper API](https://img.shields.io/badge/Flipper%20API-87%20%C2%B7%2088-ff4a60?style=flat-square&labelColor=0b0710)](#which-build-do-i-download)
-![Platform](https://img.shields.io/badge/platform-Flipper%20Zero-ff4a60?style=flat-square&logo=flipper&logoColor=FE8A2C&labelColor=0b0710)
-![Extra hardware](https://img.shields.io/badge/extra%20hardware-optional%20%241%20probe-9f7aff?style=flat-square&labelColor=0b0710)
-![Listen only](https://img.shields.io/badge/transmits-never-2ec7a5?style=flat-square&labelColor=0b0710)
-
-</div>
-
 <p align="center">
-  <img src="images/nyx-demo.gif" width="70%" alt="Nyx in use: the eye opening through IR wave-rings, a quiet sweep, the ring filling and the strip inverting on a live emitter, sensitivity changing live, the probe wiring diagram and its live check, then settings">
-</p>
-<p align="center">
-  <sub>A sweep, start to finish: the eye opens &rarr; a quiet room &rarr; the ring fills and
-  <b>locks on</b> &rarr; sensitivity, live &rarr; the probe wiring and its live check.</sub>
+  <img src="images/banner.png" alt="Nyx — hidden-camera / IR-emitter sweep for Flipper Zero" width="100%">
 </p>
 
 <p align="center">
-  <img src="images/screens.png" width="100%" alt="Eight captures from a real Flipper Zero: the boot intro, the main menu, the sweep closing in and locked on with the alarm strip inverted, the probe wiring schematic, the probe live check, settings, and the on-device about text">
-</p>
-<p align="center">
-  <sub>Every screen, <b>captured off a real Flipper Zero</b> &mdash; not mockups.
-  <a href="#tooling">The tool that reads them</a> ships in this repo.</sub>
+  <sub>
+    The eye on the banner is not an illustration. It is the sweep screen's own
+    gauge, drawn from the same parts in the same order the firmware draws them —
+    the ring filling clockwise with the live level, the tick at the best reading
+    so far, the pupil dilated by that level, and the lock-on glare spikes.
+  </sub>
 </p>
 
-A covert night-vision camera has to light the room to see in it. It does that
-with 850/940 nm infrared your eyes cannot register. Nyx turns that giveaway into
-a meter you can walk around a hotel room or an Airbnb.
+<p align="center"><i>See the light they hoped you couldn't.</i></p>
+
+<p align="center">
+  <a href="https://at0m-b0mb.github.io/Nyx-FlipperZero/"><b>Project site</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/at0m-b0mb/Nyx-FlipperZero/releases/latest">Download</a>
+  &nbsp;·&nbsp;
+  <a href="CHANGELOG.md">Changelog</a>
+</p>
+
+<!-- live badges: these track the repo, so the README never goes stale -->
+<p align="center">
+  <a href="https://github.com/at0m-b0mb/Nyx-FlipperZero/releases/latest"><img src="https://img.shields.io/github/v/release/at0m-b0mb/Nyx-FlipperZero?style=flat-square&color=9F7AFF&labelColor=000000" alt="Latest release"></a>
+  <a href="https://github.com/at0m-b0mb/Nyx-FlipperZero/releases"><img src="https://img.shields.io/github/downloads/at0m-b0mb/Nyx-FlipperZero/total?style=flat-square&color=9F7AFF&labelColor=000000&label=downloads" alt="Downloads"></a>
+  <a href="https://github.com/at0m-b0mb/Nyx-FlipperZero/stargazers"><img src="https://img.shields.io/github/stars/at0m-b0mb/Nyx-FlipperZero?style=flat-square&color=9F7AFF&labelColor=000000" alt="Stars"></a>
+  <a href="https://github.com/at0m-b0mb/Nyx-FlipperZero/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/at0m-b0mb/Nyx-FlipperZero/build.yml?branch=main&style=flat-square&labelColor=000000&color=9F7AFF&label=build" alt="Build"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/platform-Flipper%20Zero-9F7AFF?style=flat-square&logo=flipper&logoColor=FE8A2C&labelColor=000000" alt="Flipper Zero">
+  <img src="https://img.shields.io/badge/sensor-850%2F940%20nm%20IR%20(onboard%20%2B%20probe)-9F7AFF?style=flat-square&labelColor=000000" alt="Infrared">
+  <img src="https://img.shields.io/badge/firmware-stock%20%2B%20custom-9F7AFF?style=flat-square&labelColor=000000" alt="Stock and custom firmware">
+  <img src="https://img.shields.io/badge/transmits-never-9F7AFF?style=flat-square&labelColor=000000" alt="Listen-only">
+  <img src="https://img.shields.io/badge/license-MIT-9F7AFF?style=flat-square&labelColor=000000" alt="MIT">
+</p>
+
+<p align="center">
+  <b>Nyx</b> turns your Flipper Zero into a pocket <b>hidden-camera sweep</b>. A covert
+  night-vision camera has to light the room to see in it, and it does that with
+  <b>850/940&nbsp;nm infrared</b> your eyes cannot register. Nyx <i>passively listens</i> for
+  that giveaway and turns it into a meter you can walk around a hotel room or an Airbnb —
+  telling you <b>whether something is emitting</b>, <b>how close you are getting</b>, and
+  <b>what kind of source it is</b>. It never transmits.
+</p>
+
+<p align="center"><sub>The light is invisible. Nyx makes it a reading.</sub></p>
+
+<p align="center">
+  <sub>
+    <b>And it tells you when it cannot help.</b> The Flipper's onboard receiver is
+    deaf to a steady illuminator by design — Nyx says so on the screen while it runs,
+    instead of inventing a detection. <a href="#read-this-first--what-nyx-can-and-cannot-see">Why, and what to do about it.</a>
+  </sub>
+</p>
+
+---
+
+## On the Flipper
+
+<p align="center">
+  <img src="images/nyx-demo.gif" width="70%" alt="Nyx in use: the eye opening through IR wave-rings, a quiet sweep, the ring filling and the strip inverting on a live emitter, sensitivity changing live, the probe wiring diagram and its live check">
+</p>
+<p align="center">
+  <sub>A sweep, start to finish: the eye opens → a quiet room → the ring fills and <b>locks on</b> → sensitivity, live → the probe and its check.</sub>
+</p>
+
+### Every screen
+
+<p align="center">
+  <img src="images/screens.png" width="100%" alt="Nyx screens, captured from a real Flipper Zero">
+</p>
+<p align="center">
+  <sub>
+    <b>Every image in this README is a capture off a real device</b>, taken over
+    the Flipper's own RPC session by <code>tools_screenshot.py</code>, in the amber
+    of the actual panel. There is no mockup renderer in this project any more — a
+    drawing of the UI is a second implementation of it, and this one had already
+    drifted from the firmware while looking perfectly convincing.
+  </sub>
+</p>
 
 ---
 
