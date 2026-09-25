@@ -14,6 +14,14 @@
 
 </div>
 
+<p align="center">
+  <img src="images/nyx-demo.gif" width="70%" alt="Nyx in use: the eye opening through IR wave-rings, a quiet sweep, the ring filling and the strip inverting on a live emitter, sensitivity changing live, the probe wiring diagram and its live check, then settings">
+</p>
+<p align="center">
+  <sub>A sweep, start to finish: the eye opens &rarr; a quiet room &rarr; the ring fills and
+  <b>locks on</b> &rarr; sensitivity, live &rarr; the probe wiring and its live check.</sub>
+</p>
+
 A covert night-vision camera has to light the room to see in it. It does that
 with 850/940 nm infrared your eyes cannot register. Nyx turns that giveaway into
 a meter you can walk around a hotel room or an Airbnb.
@@ -86,17 +94,7 @@ the probe.
 
 ---
 
-## On the Flipper
-
-<p align="center">
-  <img src="images/nyx-demo.gif" width="70%" alt="Nyx in use: the eye opening through IR wave-rings, a quiet sweep, the ring filling and the strip inverting on a live emitter, sensitivity changing live, the probe wiring diagram and its live check, then settings">
-</p>
-<p align="center">
-  <sub>A sweep, start to finish: the eye opens &rarr; a quiet room &rarr; the ring fills and
-  <b>locks on</b> &rarr; sensitivity, live &rarr; the probe wiring and its live check.</sub>
-</p>
-
-### Straight off the device
+## Straight off the device
 
 <p align="center">
   <img src="images/screens.png" width="100%" alt="Eight captures from a real Flipper Zero: the boot intro, the main menu, the sweep closing in and locked on with the alarm strip inverted, the probe wiring schematic, the probe live check, settings, and the on-device about text">
