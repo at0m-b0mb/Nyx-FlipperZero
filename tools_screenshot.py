@@ -547,12 +547,28 @@ def tour_gif(f, name="nyx-demo", fps=10, scale=3):
     """
     frames = []
 
-    def grab(seconds):
+    def grab(seconds, cue=None, watch=False):
+        """Collect frames for a while. `watch` echoes whether the device is
+        currently detecting, so you can correct your aim mid-take instead of
+        finding out afterwards that the whole segment is empty."""
+        if cue:
+            print(f"    [{cue}]", flush=True)
         end = time.time() + seconds
+        next_tick = time.time() + 1.0
+        hit = False
         while time.time() < end:
             d = f._await_frame(0.6)
-            if d is not None:
-                frames.append(to_image(d))
+            if d is None:
+                continue
+            img = to_image(d)
+            frames.append(img)
+            if watch:
+                if alarm_band_lit(img):
+                    hit = True
+                if time.time() >= next_tick:
+                    print("      " + ("DETECTING" if hit else "nothing yet — aim the remote at the TOP EDGE, hold the button"), flush=True)
+                    hit = False
+                    next_tick = time.time() + 1.0
 
     for _ in range(6):
         f.press("back", settle=0.2)
@@ -576,30 +592,49 @@ def tour_gif(f, name="nyx-demo", fps=10, scale=3):
         if ink < (64 * 32) * 0.40:
             break
 
-    grab(4.0)                       # the intro, then the menu settles
+    grab(4.0, "intro + menu")
     f.press("ok", settle=0.1)
-    grab(6.0)                       # the sweep — still the longest beat
+    # Wait for the tool to actually detect something rather than hoping it
+    # happens inside a fixed window. A demo of a detector that never detects
+    # anything is not a demo, and holding a remote on cue is fiddly.
+    grab(1.5, ">>> SWEEP: hold a remote button pointed at the TOP EDGE, ~10cm away <<<")
+    got, deadline = 0, time.time() + 45
+    tick = time.time() + 1.0
+    while time.time() < deadline and got < 28:
+        d = f._await_frame(0.6)
+        if d is None:
+            continue
+        img = to_image(d)
+        frames.append(img)
+        if alarm_band_lit(img):
+            got += 1
+        if time.time() >= tick:
+            print(f"      {'DETECTING — hold it there' if got else 'nothing yet — TOP EDGE of the Flipper, button held'}"
+                  f"  ({got}/28 frames)", flush=True)
+            tick = time.time() + 1.0
+    print(f"    [sweep captured {got} detected frames]", flush=True)
+    grab(1.5)
     f.press("left", settle=0.1)
-    grab(2.0)                       # sensitivity drops, live
+    grab(2.0, "sensitivity down — keep holding the button", watch=True)
     f.press("right", settle=0.1)
     f.press("right", settle=0.1)
-    grab(2.4)                       # and back up again
+    grab(2.4, "sensitivity up — keep holding the button", watch=True)
     f.press("back", settle=0.1)
     f.press("down", settle=0.1)
     f.press("ok", settle=0.1)
-    grab(3.0)                       # probe wiring
+    grab(3.0, "probe wiring — you can let go now")
     f.press("right", settle=0.1)
-    grab(3.4)                       # probe live check
+    grab(3.4, "probe live check")
     f.press("back", settle=0.1)
     f.press("down", settle=0.1)
     f.press("ok", settle=0.1)
-    grab(2.4)                       # settings
+    grab(2.4, "settings")
     f.press("down", settle=0.5)
     f.press("down", settle=0.5)
     f.press("down", settle=0.5)
-    grab(2.2)
+    grab(2.2, "settings, scrolled")
     f.press("back", settle=0.1)
-    grab(2.4)                       # home again, so the loop closes cleanly
+    grab(2.4, "back to the menu — done")
 
     if not frames:
         print("  !! nothing recorded")
