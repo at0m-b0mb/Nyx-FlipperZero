@@ -8,10 +8,22 @@ on:
 permissions:
   contents: write
 
+# A .fap bakes in the API version of the SDK it was built against, and the
+# loader refuses to run one that is ahead of the firmware ("API version mismatch").
+# Official firmware tracks the release channel, while Unleashed / RogueMaster /
+# Momentum track dev — no single build serves both, so a tag produces one of each.
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
-    name: Build & attach nyx.fap
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - channel: release
+            artifact: nyx.fap
+          - channel: dev
+            artifact: nyx-fw-dev.fap
+    name: Build (${{ matrix.channel }})
     steps:
       - uses: actions/checkout@v4
 
@@ -22,15 +34,45 @@ jobs:
       - name: Install ufbt
         run: python3 -m pip install --upgrade ufbt
 
-      - name: Sync SDK (release)
-        run: ufbt update --channel=release
+      - name: Sync SDK (${{ matrix.channel }})
+        run: ufbt update --channel=${{ matrix.channel }}
 
       - name: Build Nyx
         run: ufbt
 
-      - name: Attach .fap to the release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+      - name: Name the artifact for its firmware line
+        run: |
+          mkdir -p out
+          cp dist/nyx.fap "out/${{ matrix.artifact }}"
+
+      - name: Record the API version it was built against
+        run: |
+          api=$(grep -m1 '^Version' ~/.ufbt/current/sdk_headers/f7_sdk/targets/f7/api_symbols.csv | cut -d, -f3)
+          echo "${{ matrix.artifact }} was built against Flipper API $api" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
         with:
-          files: dist/nyx.fap
+          name: ${{ matrix.artifact }}
+          path: out/${{ matrix.artifact }}
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    name: Attach both builds to the release
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+
+      - name: Show what is being attached
+        run: ls -l out
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/nyx.fap
+            out/nyx-fw-dev.fap
           fail_on_unmatched_files: true

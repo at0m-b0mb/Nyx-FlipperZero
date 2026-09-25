@@ -2,23 +2,28 @@
 
 ![Nyx banner](images/banner.png)
 
-# Nyx — Hidden-Camera / IR-Emitter Sweep for Flipper Zero
-
 **See the light they hoped you couldn't.**
+
+**[Project site &rarr;](https://at0m-b0mb.github.io/Nyx-FlipperZero/)**
+
+[![Build FAP](https://github.com/at0m-b0mb/Nyx-FlipperZero/actions/workflows/build.yml/badge.svg)](https://github.com/at0m-b0mb/Nyx-FlipperZero/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/at0m-b0mb/Nyx-FlipperZero?color=9f7aff)](https://github.com/at0m-b0mb/Nyx-FlipperZero/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-9f7aff.svg)](LICENSE)
+[![Flipper API](https://img.shields.io/badge/Flipper%20API-87%20%C2%B7%2088-ff4a60)](#which-build-do-i-download)
+![Listen only](https://img.shields.io/badge/listen--only-never%20transmits-2ec7a5)
+
+</div>
 
 A covert night-vision camera has to light the room to see in it. It does that
 with 850/940 nm infrared your eyes cannot register. Nyx turns that giveaway into
 a meter you can walk around a hotel room or an Airbnb.
 
-[![Build FAP](https://github.com/at0m-b0mb/Nyx-FlipperZero/actions/workflows/build.yml/badge.svg)](https://github.com/at0m-b0mb/Nyx-FlipperZero/actions/workflows/build.yml)
-[![Release](https://img.shields.io/github/v/release/at0m-b0mb/Nyx-FlipperZero?color=9f7aff)](https://github.com/at0m-b0mb/Nyx-FlipperZero/releases/latest)
-[![License: MIT](https://img.shields.io/badge/License-MIT-9f7aff.svg)](LICENSE)
-![Flipper API](https://img.shields.io/badge/Flipper%20API-87.1-ff4a60)
-![Listen only](https://img.shields.io/badge/listen--only-never%20transmits-2ec7a5)
+<img src="images/nyx-demo.gif" alt="Nyx running on a Flipper Zero" width="384">
 
 ![Nyx screens](images/screens.png)
 
-</div>
+<sub>Every screenshot and the animation above are captured live from a real
+Flipper Zero over the RPC framebuffer — see <a href="#tooling">tooling</a>.</sub>
 
 ---
 
@@ -63,23 +68,50 @@ serious about a sweep, wire the probe.
 **Auto mode** uses the probe if one is plugged in, otherwise the onboard
 receiver, and the header always tells you which one is live.
 
+### A worked example, because this is the part that matters
+
+Here is Nyx against a real dome camera whose IR illuminator is clearly running
+— the LEDs glow visibly through a phone camera. Flipper held directly in front
+of it, onboard mode, sensitivity High, logged straight off the device:
+
+```
+143 of 155 windows   eps=0    act=0%    duty=0     ← silence
+  4 of 155 windows   eps=40-60  act=10-15%         ← brief blips
+```
+
+**Nyx reports nothing, and that is the correct answer for this sensor.** That
+illuminator runs at steady DC, and the onboard TSOP-75338 is built to reject
+exactly that. A detector that lit up here would be inventing a result.
+
+Against a TV remote — a genuinely *pulsed* source — the same screen locks on
+solidly at 98%, `PULSED`, `STRONG`.
+
+This is the whole reason Probe mode exists, and the whole reason the sweep
+screen keeps telling you `Onboard: pulsed IR only` and `Steady IR? Use Probe`
+while it is running. If you are sweeping for cameras rather than remotes, wire
+the probe.
+
 ---
 
 ## Using it
 
-1. **Sweep** — the meter, built around an **eye that watches back**. Kill the
-   room lights, then pan the Flipper slowly across walls, smoke detectors, alarm
-   clocks, vents, mirrors, and anything with a pinhole. The eye's **ring fills**
-   and its **pupil dilates** as the signal rises, a tick marks your best reading
-   so far, and the big **trend arrow** (▲ getting warmer / ▼ colder) points you
-   in. When it locks on, glare spikes spin around the iris and the geiger clicks
-   and LED speed up as you close in.
-2. **Probe Setup** — how to wire the phototransistor, plus a **live check** so
-   you can prove the probe works (aim a TV remote at it and watch the needle
-   jump) before you trust a clean sweep.
-3. **Settings** — mode, sensitivity, probe pin, and sound/vibro/LED. Your
-   choices are **saved** and restored on the next launch.
-4. **About** — the same honesty notes, on the device.
+### The sweep screen
+
+The meter is built around an **eye that watches back**, and every part of it is
+there to answer "am I getting warmer":
+
+- The **ring fills clockwise** with the live level and the **pupil dilates** as
+  you close on a source.
+- The single **tick on the ring** is your best reading so far. The game is to
+  push the ring past the tick.
+- The **arrow** on the right is the honest get-warmer cue — ▲ rising, ▼ falling,
+  a flat bar for holding steady.
+- When it locks on, glare spikes spin around the iris, the bottom strip inverts,
+  and the geiger clicks speed up as the reading climbs — so you can hunt with
+  the screen at your side rather than staring at it.
+
+Kill the room lights, then pan the Flipper slowly across walls, smoke detectors,
+alarm clocks, vents, mirrors, and anything with a pinhole.
 
 ### Reading the source label
 
@@ -92,12 +124,83 @@ receiver, and the header always tells you which one is live.
 
 ### Keys
 
-| Key | Action |
-|-----|--------|
-| **OK** | Zero the peak-hold and hit count |
-| **Hold OK** | Re-null the ambient baseline (probe mode) — do this after you walk into a new room |
-| **← / →** | Flip between the wiring diagram and the live check on Probe Setup |
-| **Back** | Leave the sweep / return to the menu |
+| Key | Where | Action |
+|-----|-------|--------|
+| **OK** | Sweep | Zero the peak-hold and hit count |
+| **Hold OK** | Sweep | Re-null the ambient baseline (probe mode) — do this after walking into a new room |
+| **← / →** | Sweep | Sensitivity down / up, **live**. The current setting is named in the header |
+| **← / →** | Probe Setup | Flip between the wiring diagram and the live check |
+| **OK** | Probe Setup | Clear the peak reading |
+| **Back** | anywhere | Leave the screen / the app |
+
+Changing sensitivity mid-sweep also zeroes the peak and hit count: readings
+taken against a different noise floor are not the same measurement, and mixing
+them would quietly lie to you.
+
+### The rest of the menu
+
+- **Probe Setup** — how to wire the phototransistor, plus a **live check** so
+  you can prove the probe works (aim a TV remote at it and watch the needle
+  jump) before you trust a clean sweep.
+- **Settings** — mode, sensitivity, probe pin, sound / vibro / LED, and whether
+  to play the boot intro. Your choices are **saved** and restored next launch.
+- **About** — the same honesty notes, on the device.
+
+---
+
+## Install
+
+### Which build do I download?
+
+A `.fap` bakes in the API version of the SDK it was compiled against, and the
+loader refuses to run one that is ahead of your firmware. There is no single
+build that serves both firmware lines, so **every release ships two**:
+
+| Your firmware | Download | Built against |
+|---|---|---|
+| **Official / stock** Flipper firmware | **`nyx.fap`** | release channel, API 87 |
+| **Unleashed · RogueMaster · Momentum** | **`nyx-fw-dev.fap`** | dev channel, API 88 |
+
+If you see `API version mismatch` or `app might not work` in the loader, you
+have the other one — grab its counterpart.
+
+Download from the [latest release](https://github.com/at0m-b0mb/Nyx-FlipperZero/releases/latest)
+and drop it in `apps/Infrared/` on your Flipper's SD card (qFlipper, or the
+mobile app). It shows up under **Apps → Infrared → Nyx**.
+
+### From source
+
+```bash
+python3 -m pip install --upgrade ufbt
+git clone https://github.com/at0m-b0mb/Nyx-FlipperZero.git
+cd Nyx-FlipperZero
+ufbt update --channel=release   # or --channel=dev for Unleashed/RogueMaster/Momentum
+ufbt                            # builds dist/nyx.fap
+ufbt launch                     # build + install to a connected Flipper
+```
+
+<a name="tooling"></a>
+
+Regenerate the art after editing the generators:
+
+```bash
+python3 tools_gen_icons.py
+python3 tools_gen_banner.py
+```
+
+Capture fresh screenshots and the demo GIF from a connected Flipper. These drive
+the app over the protobuf RPC session and read the real framebuffer, so what you
+get is the device, not a rendering of it:
+
+```bash
+python3 tools_screenshot.py --all        # every screen + images/screens.png
+python3 tools_screenshot.py --tour-gif   # images/nyx-demo.gif
+python3 tools_screenshot.py --alarm      # wait for a real detection, capture it
+```
+
+Each screen is written twice: `screenshots/<name>.png` at the native 128x64 in
+plain 1-bit (what the Flipper app catalog wants) and `screenshots/<name>@4x.png`
+in the Flipper's amber, which is what the README and the site use.
 
 ---
 
@@ -113,7 +216,7 @@ resistor. It wires as an emitter-follower: more IR in, more volts out.
         ┌┴┐   IR phototransistor
     IR →│ │   (collector to 3V3)
         └┬┘
-         ├───────────►  ADC pin — PC0 (pin 16) by default
+         ├───────────►  ADC pin — PA7 (pin 2) by default
         ┌┴┐
         │ │  10 kΩ
         └┬┘
@@ -124,13 +227,15 @@ resistor. It wires as an emitter-follower: more IR in, more volts out.
 | Phototransistor lead | Wire to | Flipper pin |
 |---|---|---|
 | Collector | 3V3 | pin 9 |
-| Emitter | ADC in + one end of 10 kΩ | **PC0, pin 16** |
+| Emitter | ADC in + one end of 10 kΩ | **PA7, pin 2** |
 | (10 kΩ other end) | GND | pin 18 |
 
-You can pick any ADC-capable pin (PC0, PC1, PC3, PA4, PA6, PA7) under
-**Settings → Probe pin**; the Probe Setup screen always shows the pin it expects
-by its silkscreened number. Nyx detects the probe automatically by sensing the
-load on the pin.
+You can pick any ADC-capable pin under **Settings → Probe pin** — in the order
+the picker offers them, `PA7` (pin 2), `PA6` (3), `PA4` (4), `PC3` (7), `PC1`
+(15), `PC0` (16). The list is built from the SDK's own GPIO table rather than
+hardcoded, and the Probe Setup screen always shows the pin it currently expects
+by its silkscreened number, so trust the screen over this table. Nyx detects the
+probe automatically by sensing the load on the pin.
 
 Then open **Probe Setup → →** and press a key on any TV remote pointed at the
 phototransistor. If the reading jumps, you're good.
@@ -154,39 +259,11 @@ phototransistor. If the reading jumps, you're good.
 
 ---
 
-## Install
-
-**From a release (easiest)**
-
-Download `nyx.fap` from the [latest release](https://github.com/at0m-b0mb/Nyx-FlipperZero/releases/latest)
-and drop it in `apps/Infrared/` on your Flipper's SD card (qFlipper, or the
-mobile app). It shows up under **Apps → Infrared → Nyx**. Works on stock
-firmware — no custom firmware required.
-
-**From source**
-
-```bash
-python3 -m pip install --upgrade ufbt
-ufbt update            # pull the SDK (release channel)
-git clone https://github.com/at0m-b0mb/Nyx-FlipperZero.git
-cd Nyx-FlipperZero
-ufbt                   # builds dist/nyx.fap
-ufbt launch            # build + install to a connected Flipper
-```
-
-Regenerate the art after editing the generators:
-
-```bash
-python3 tools_gen_icons.py
-python3 tools_gen_banner.py
-python3 tools_gen_mockups.py
-```
-
----
-
 ## How it works
 
-- **`helpers/ir_sense.c`** — the dual-path engine, on a worker thread.
+- **`helpers/ir_sense.c`** — the dual-path engine, on a worker thread that runs
+  one priority step below the UI (the probe burst busy-waits, and at the default
+  priority that competes with the view dispatcher for the core).
   - *Onboard:* `furi_hal_infrared_async_rx_*` with a capture ISR that counts
     output edges per window. Edge-rate is the activity metric; we never decode,
     because we don't care *what* is transmitted, only *that* something is.
@@ -197,18 +274,20 @@ python3 tools_gen_mockups.py
     so the ripple survives.
   - The probe pin list is built from the SDK's own `gpio_pins[]` ADC table, so
     it can't drift from the HAL.
-- **`views/sweep_view.c`** — the locating instrument: an eye whose ring fills
-  with the live level, whose pupil dilates as you close in, with a peak tick, a
-  source label, a get-warmer trend arrow, and an inverted alarm strip when an
-  emitter is locked on. In onboard mode it keeps admitting, in the idle hint
-  line, that it can only see pulsed IR.
+- **`views/sweep_view.c`** — the locating instrument: the eye gauge, the source
+  label, the get-warmer arrow, and an inverted alarm strip. Each measurement is
+  named in exactly one place, and in onboard mode the idle hint keeps admitting
+  that it can only see pulsed IR.
 - **`views/probe_view.c`** — the wiring schematic and the live probe check.
 - **`views/splash_view.c`** — the boot intro: a Nyx eye opening through IR
-  wave-rings (any key skips it).
+  wave-rings (any key skips it; turn it off in Settings).
 - **`helpers/nyx_store.c`** — settings persistence via the firmware's
-  `saved_struct`, so mode / sensitivity / probe pin survive a relaunch.
+  `saved_struct`, with every loaded index clamped and every bool normalised
+  before use, because the SD card is writable by anything.
 - **`scenes/`** — splash / start / sweep / probe / settings / about, wired with
   the standard Flipper scene-manager X-macro.
+- **`tools_screenshot.py`** — pulls real frames off a connected Flipper over the
+  protobuf RPC session, for the screenshots above.
 
 **Listen-only.** Nyx never transmits IR.
 
