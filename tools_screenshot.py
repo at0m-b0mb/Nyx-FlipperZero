@@ -301,6 +301,15 @@ def to_image(data):
     return img
 
 
+def ink_fraction(img):
+    """Proportion of lit pixels, sampled. The Flipper desktop's dolphin art is a
+    large dark scene while every Nyx screen is mostly unlit, so this tells the
+    two apart without counting frames."""
+    px = img.load()
+    on = sum(1 for y in range(0, 64, 2) for x in range(0, 128, 2) if px[x, y] == 0)
+    return on / float(64 * 32)
+
+
 def amber(img, scale=1):
     """Render a 1-bit frame the way the device actually looks."""
     out = Image.new("RGB", (128, 64), LCD_ON)
@@ -533,6 +542,71 @@ SHEET = [
 ]
 
 
+def _write_gif(frames, out, fps, scale, hold_cap_ms=2200):
+    """Encode frames, holding a static screen with per-frame DURATION.
+
+    Repeating a frame does not survive encoding: Pillow's GIF optimiser
+    collapses identical consecutive frames again on the way out, so a page with
+    nothing moving on it flashes past in one tick however many copies it was
+    handed. Timing each unique frame by how long it was actually on screen is
+    both what we mean and a smaller file.
+    """
+    runs = []
+    for fr in frames:
+        if runs and fr.tobytes() == runs[-1][0].tobytes():
+            runs[-1][1] += 1
+        else:
+            runs.append([fr, 1])
+
+    tick = 1000.0 / fps
+    durations = [max(int(tick), min(int(count * tick), hold_cap_ms)) for _, count in runs]
+
+    os.makedirs(IMAGES, exist_ok=True)
+    big = [amber(fr, scale) for fr, _ in runs]
+    big[0].save(out, save_all=True, append_images=big[1:],
+                duration=durations, loop=0, optimize=True)
+    print(f"  wrote {out}  ({len(big)} unique frames, "
+          f"~{sum(durations) / 1000.0:.0f}s of playback, {os.path.getsize(out)//1024} KB)")
+    return out
+
+
+def splash_capture(f, fps=10, scale=3):
+    """Record the boot intro, from the launch request onwards.
+
+    The intro is the one thing that cannot be captured by navigating to it: it
+    plays once, on launch, before any key can be pressed. Launching over RPC
+    rather than through the CLI is what makes it reachable at all — the screen
+    stream stays up across the launch, so the very first frames the app paints
+    come down the wire like any others. The desktop's own frames are dropped by
+    content rather than by counting, which is unreliable.
+    """
+    for _ in range(7):
+        f.press("back", settle=0.2)
+    time.sleep(0.5)
+    f.flush()
+
+    frames = []
+    f.app_start(FAP_PATH)
+    end = time.time() + 3.2
+    while time.time() < end:
+        d = f._await_frame(0.5)
+        if d is None:
+            continue
+        img = to_image(d)
+        if not frames and ink_fraction(img) >= 0.40:
+            continue  # still the desktop
+        frames.append(img)
+
+    if not frames:
+        print("  !! nothing recorded for the intro")
+        return None
+    # The still wants the COMPOSED intro — eye fully open, wordmark and tagline
+    # both up — not a mid-open frame, so take one near the end but before the
+    # menu replaces it.
+    save(frames[max(0, int(len(frames) * 0.90) - 1)], "splash")
+    return _write_gif(frames, os.path.join(IMAGES, "splash.gif"), fps, scale, hold_cap_ms=900)
+
+
 def tour_gif(f, name="nyx-demo", fps=10, scale=3):
     """Record one continuous GIF of a scripted walk through the app.
 
@@ -639,33 +713,7 @@ def tour_gif(f, name="nyx-demo", fps=10, scale=3):
     if not frames:
         print("  !! nothing recorded")
         return None
-    # Hold a static screen with per-frame DURATION, not repeated frames.
-    #
-    # Repeating a frame does not survive encoding: Pillow's GIF optimiser
-    # collapses identical consecutive frames again on the way out, so a page
-    # with nothing moving on it flashes past in one tick however many copies
-    # were handed to it. Timing each unique frame by how long it was actually on
-    # screen is both what we mean and a smaller file.
-    runs = []
-    for fr in frames:
-        if runs and fr.tobytes() == runs[-1][0].tobytes():
-            runs[-1][1] += 1
-        else:
-            runs.append([fr, 1])
-
-    tick = 1000.0 / fps
-    # Cap the hold so a long idle stretch cannot stall the loop.
-    durations = [max(int(tick), min(int(count * tick), 2200)) for _, count in runs]
-
-    os.makedirs(IMAGES, exist_ok=True)
-    out = os.path.join(IMAGES, f"{name}.gif")
-    big = [amber(fr, scale) for fr, _ in runs]
-    big[0].save(out, save_all=True, append_images=big[1:],
-                duration=durations, loop=0, optimize=True)
-    total = sum(durations) / 1000.0
-    print(f"  wrote {out}  ({len(big)} unique frames, "
-          f"~{total:.0f}s of playback, {os.path.getsize(out)//1024} KB)")
-    return out
+    return _write_gif(frames, os.path.join(IMAGES, f"{name}.gif"), fps, scale)
 
 
 def main():
@@ -680,13 +728,14 @@ def main():
     ap.add_argument("--launch", metavar="FAP", help="start this app over RPC first (catches the intro)")
     ap.add_argument("--alarm", action="store_true", help="open Sweep and wait for a real detection")
     ap.add_argument("--tour-gif", action="store_true", help="record a GIF of a scripted walk through the app")
+    ap.add_argument("--splash", action="store_true", help="record the boot intro to images/splash.gif")
     args = ap.parse_args()
 
     if args.sheet and not (args.all or args.shot):
         contact_sheet(SHEET)
         return
 
-    if not (args.all or args.shot or args.record or args.alarm or args.tour_gif):
+    if not (args.all or args.shot or args.record or args.alarm or args.tour_gif or args.splash):
         ap.print_help()
         return
 
@@ -695,7 +744,9 @@ def main():
         f.start_stream()
         if args.launch:
             f.app_start(args.launch)
-        if args.tour_gif:
+        if args.splash:
+            splash_capture(f)
+        elif args.tour_gif:
             print("  recording the tour — wave a TV remote at it during the sweep")
             tour_gif(f)
         elif args.alarm:
