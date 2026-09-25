@@ -27,6 +27,14 @@
   <b>locks on</b> &rarr; sensitivity, live &rarr; the probe wiring and its live check.</sub>
 </p>
 
+<p align="center">
+  <img src="images/screens.png" width="100%" alt="Eight captures from a real Flipper Zero: the boot intro, the main menu, the sweep closing in and locked on with the alarm strip inverted, the probe wiring schematic, the probe live check, settings, and the on-device about text">
+</p>
+<p align="center">
+  <sub>Every screen, <b>captured off a real Flipper Zero</b> &mdash; not mockups.
+  <a href="#tooling">The tool that reads them</a> ships in this repo.</sub>
+</p>
+
 A covert night-vision camera has to light the room to see in it. It does that
 with 850/940 nm infrared your eyes cannot register. Nyx turns that giveaway into
 a meter you can walk around a hotel room or an Airbnb.
@@ -96,22 +104,6 @@ This is the whole reason Probe mode exists, and the whole reason the sweep
 screen keeps telling you `Onboard: pulsed IR only` and `Steady IR? Use Probe`
 while it is running. If you are sweeping for cameras rather than remotes, wire
 the probe.
-
----
-
-## Straight off the device
-
-<p align="center">
-  <img src="images/screens.png" width="100%" alt="Eight captures from a real Flipper Zero: the boot intro, the main menu, the sweep closing in and locked on with the alarm strip inverted, the probe wiring schematic, the probe live check, settings, and the on-device about text">
-</p>
-<p align="center">
-  <sub>
-    Not mockups, and not a rendering of the layout constants either &mdash;
-    <b>real framebuffer reads off a Flipper Zero</b> over its RPC session, in the
-    amber of the actual panel. <a href="#tooling">The tool that captures them</a>
-    ships in this repo.
-  </sub>
-</p>
 
 ---
 
