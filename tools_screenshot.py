@@ -338,8 +338,8 @@ def save(img, name, scale=4):
 # meant for a human (the upscales, the contact sheet, the GIFs) is rendered in
 # that amber; the native 128x64 files stay 1-bit black and white, because that
 # is what the Flipper app catalog's validator expects.
-LCD_ON = (255, 130, 0)  # lit pixel — Flipper amber
-LCD_INK = (17, 10, 0)  # unlit pixel — near black, warmed slightly
+LCD_ON = (254, 138, 44)  # lit pixel — qFlipper's own backlight amber
+LCD_INK = (0, 0, 0)  # unlit pixel — pure black, as qFlipper renders it
 
 SKY = (14, 10, 24)
 VIOLET = (159, 122, 255)
