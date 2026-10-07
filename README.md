@@ -210,16 +210,25 @@ them would quietly lie to you.
 ### Which build do I download?
 
 A `.fap` bakes in the API version of the SDK it was compiled against, and the
-loader refuses to run one that is ahead of your firmware. There is no single
-build that serves both firmware lines, so **every release ships two**:
+loader refuses to run one that does not match your firmware. There is no single
+build that serves both API lines, so **every release ships two**:
 
-| Your firmware | Download | Built against |
-|---|---|---|
-| **Official / stock** Flipper firmware | **`nyx.fap`** | release channel, API 87 |
-| **Unleashed · RogueMaster · Momentum** | **`nyx-fw-dev.fap`** | dev channel, API 88 |
+| Your firmware reports | Download |
+|---|---|
+| **API 87.x** | **`nyx.fap`** |
+| **API 88.x** | **`nyx-fw-dev.fap`** |
 
-If you see `API version mismatch` or `app might not work` in the loader, you
-have the other one — grab its counterpart.
+**Go by the API number your device reports, not by which firmware you run.**
+On the Flipper: **Settings → About → Firmware**, or over USB
+`device_info` prints `firmware_api_major`. qFlipper shows it on the device
+page too.
+
+That distinction matters and it is easy to get wrong. The custom firmwares do
+not sit on a fixed API line — a Momentum build can report API 87 or API 88
+depending on which Momentum release it is, and the same goes for Unleashed and
+RogueMaster. Picking by the name on the firmware rather than the number on the
+screen is how you end up with the file your loader refuses. If you see
+`API version mismatch` or `app might not work`, you have the other one.
 
 Download from the [latest release](https://github.com/at0m-b0mb/Nyx-FlipperZero/releases/latest)
 and drop it in `apps/Infrared/` on your Flipper's SD card (qFlipper, or the

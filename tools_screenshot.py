@@ -323,12 +323,30 @@ def amber(img, scale=1):
     return out
 
 
+# qFlipper's own two colours, read out of a real qFlipper capture. The Apps
+# Catalog reviewer checks these pixel by pixel and will reject a submission that
+# uses anything else - Nyx 1.2 was sent back for emitting a slightly warmed
+# brand amber, (255,130,0) on (17,10,0), which looked right and was not.
+QFLIPPER_PALETTE = {(0, 0, 0), (254, 138, 44)}
+
+
 def save(img, name, scale=4):
     os.makedirs(SHOTS, exist_ok=True)
     native = os.path.join(SHOTS, f"{name}.png")
-    img.save(native)  # 1-bit, for the app catalog
-    amber(img, scale).save(os.path.join(SHOTS, f"{name}@{scale}x.png"))
-    print(f"  saved {name}.png (128x64, 1-bit) + @{scale}x amber")
+    img.save(native)  # 1-bit, kept for diffing and for the README tooling
+    up = amber(img, scale)
+
+    # Assert rather than hope. The framebuffer is 1-bit, so a correct render has
+    # exactly two colours; anything else means the palette constants drifted.
+    cols = {c for _, c in up.convert("RGB").getcolors(maxcolors=1 << 24)}
+    if not cols.issubset(QFLIPPER_PALETTE):
+        raise AssertionError(
+            f"{name}@{scale}x has colours {sorted(cols)}; the catalog requires "
+            f"exactly {sorted(QFLIPPER_PALETTE)} (qFlipper's own palette)."
+        )
+
+    up.save(os.path.join(SHOTS, f"{name}@{scale}x.png"))
+    print(f"  saved {name}.png (128x64, 1-bit) + @{scale}x in qFlipper's palette")
     return native
 
 
@@ -336,8 +354,10 @@ def save(img, name, scale=4):
 # The Flipper's LCD is a monochrome panel behind an amber backlight, so a plain
 # black-on-white capture does not look like the thing in your hand. Everything
 # meant for a human (the upscales, the contact sheet, the GIFs) is rendered in
-# that amber; the native 128x64 files stay 1-bit black and white, because that
-# is what the Flipper app catalog's validator expects.
+# that amber. The native 128x64 files stay 1-bit black and white for diffing -
+# note they are NOT what the catalog wants: bundle.py rejects a native 128x64
+# screenshot ("downscaled to 1x1") because it insists on doing the downscale
+# itself, so a submission must point at the @4x files.
 LCD_ON = (254, 138, 44)  # lit pixel — qFlipper's own backlight amber
 LCD_INK = (0, 0, 0)  # unlit pixel — pure black, as qFlipper renders it
 
@@ -538,7 +558,9 @@ SHEET = [
     ("probe_wiring", "Probe Setup — wiring"),
     ("probe_check", "Probe Setup — live check"),
     ("settings", "Settings"),
-    ("about", "About"),
+    # About is deliberately absent: it prints the version number, which makes it
+    # the one capture guaranteed to be wrong by the next release. Same reason
+    # the tour GIF never opens it. What the app DOES is the thing worth showing.
 ]
 
 
